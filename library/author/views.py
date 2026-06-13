@@ -7,7 +7,9 @@ from .forms import AuthorForm
 def is_librarian(user):
     return user.is_authenticated and getattr(user, "role", 0) == 1
 
-
+#=====================================================================================================
+# to restore previous version
+# delete functions: authors and author_delete and 
 def authors(request):
     if not is_librarian(request.user):
         return redirect("home")
@@ -45,33 +47,32 @@ def author_delete(request, author_id):
     author.delete()
     return redirect("authors")
 
-def author_list(request):
-    authors = Author.get_all()
-    return render(request, "author/author_list.html", {"authors": authors})
+
+#=========================================================================================
+
+# Previous views
+# Uncomment this code
+# def author_list(request):
+#     authors = Author.get_all()
+#     return render(request, "author/author_list.html", {"authors": authors})
 
 
 # def author_create(request):
 #     if not is_librarian(request.user):
 #         return redirect("home")
 
-    # if request.method == "POST":
-    #     # name = request.POST.get("name")
-    #     # surname = request.POST.get("surname")
-    #     # patronymic = request.POST.get("patronymic")
+#     if request.method == "POST":
+#         name = request.POST.get("name")
+#         surname = request.POST.get("surname")
+#         patronymic = request.POST.get("patronymic")
 
-    #     # if name and surname and patronymic:
-    #     #     Author.create(name=name, surname=surname, patronymic=patronymic)
-    #     #     return redirect("author_list")
+#         if name and surname and patronymic:
+#             Author.create(name=name, surname=surname, patronymic=patronymic)
+#             return redirect("author_list")
 
-    #     # messages.error(request, "All fields are required")
-    #     form = AuthorForm(request.POST)
-    #     if form.is_valid():
-    #         form.save()
-    #         return redirect("author_list")
-    # else:
-    #     form = AuthorForm()
+#         messages.error(request, "All fields are required")
 
-    # return render(request, "author/author_create.html", {'form': form})
+#     return render(request, "author/author_create.html")
 
 
 # def author_delete(request, author_id):
