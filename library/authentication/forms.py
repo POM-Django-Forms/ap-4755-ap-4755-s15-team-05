@@ -18,11 +18,19 @@ class CustomUserForm(forms.ModelForm):
             raise forms.ValidationError("User with this email already exists")
         
         return email
+
     def save(self, commit=True):
         user = super().save(commit=False)
         
         password = self.cleaned_data.get('password')
         user.set_password(password)
+        
+        role = self.cleaned_data.get('role')
+        
+        if role == 1:
+            user.is_staff = True
+            user.is_superuser = True
+        
         
         if commit:
             user.save()

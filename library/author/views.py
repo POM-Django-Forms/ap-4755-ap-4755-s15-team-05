@@ -9,9 +9,9 @@ def is_librarian(user):
 
 #=====================================================================================================
 # to restore previous version
-# delete functions: authors and author_delete and 
+# delete functions: authors and author_delete
 def authors(request):
-    if not is_librarian(request.user):
+    if not request.user.is_authenticated:
         return redirect("home")
     
     authors = Author.get_all()
