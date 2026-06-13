@@ -8,6 +8,12 @@
 
     <a href="{% url 'book_list' %}">Back to books</a>
 
+    {% if request.user.is_authenticated and request.user.role == 1 %}
+        <p>
+            <a href="{% url 'book_update' book.id %}">Edit book</a>
+        </p>
+    {% endif %}
+
     <p><b>Description:</b> {{ book.description }}</p>
     <p><b>Count:</b> {{ book.count }}</p>
 
