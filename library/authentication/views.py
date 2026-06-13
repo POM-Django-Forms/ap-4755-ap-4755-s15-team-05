@@ -3,62 +3,104 @@ from django.contrib.auth import login, logout
 from django.contrib import messages
 
 from .models import CustomUser
+from .forms import CustomUserForm, LoginForm
 
+
+
+
+
+#To get previous version:
+#1)delete register_view and login view between #=
+#2)uncomment commented register_view and login_view
+#===============
+
+
+def register_view(request):
+    if request.method == "POST":
+        form = CustomUserForm(request.POST)
+        
+        if form.is_valid():
+            user = form.save()
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+            return redirect("home")
+    else:
+        form = CustomUserForm()
+        
+    return render(request, "authentication/register.html", {"form": form})
+
+def login_view(request):
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            password = form.cleaned_data["password"]
+            
+            user = CustomUser.get_by_email(email)
+            
+            if user and user.check_password(password):
+                login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+                redirect("home")
+    
+    return render(request, "authentication/login.html")
+        
+#=============   
+        
 
 def home(request):
     return render(request, "authentication/home.html")
 
 
-def register_view(request):
-    if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        middle_name = request.POST.get("middle_name")
-        role_value = request.POST.get("role", "0")
+# def register_view(request):
+#     if request.method == "POST":
+#         email = request.POST.get("email")
+#         password = request.POST.get("password")
+#         first_name = request.POST.get("first_name")
+#         last_name = request.POST.get("last_name")
+#         middle_name = request.POST.get("middle_name")
+#         role_value = request.POST.get("role", "0")
 
-        if CustomUser.get_by_email(email):
-            messages.error(request, "User with this email already exists")
-            return redirect("register")
+#         if CustomUser.get_by_email(email):
+#             messages.error(request, "User with this email already exists")
+#             return redirect("register")
 
-        user = CustomUser.create(
-            email=email,
-            password=password,
-            first_name=first_name,
-            middle_name=middle_name,
-            last_name=last_name,
-        )
+#         user = CustomUser.create(
+#             email=email,
+#             password=password,
+#             first_name=first_name,
+#             middle_name=middle_name,
+#             last_name=last_name,
+#         )
 
-        if role_value in ["1", "admin", "librarian"]:
-            user.role = 1
-        else:
-            user.role = 0
+#         if role_value in ["1", "admin", "librarian"]:
+#             user.role = 1
+#         else:
+#             user.role = 0
 
-        user.is_active = True
-        user.save()
+#         user.is_active = True
+#         user.save()
 
-        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-        return redirect("home")
+#         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+#         return redirect("home")
 
-    return render(request, "authentication/register.html")
+#     return render(request, "authentication/register.html")
 
 
-def login_view(request):
-    if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("password")
+# def login_view(request):
+#     if request.method == "POST":
+#         email = request.POST.get("email")
+#         password = request.POST.get("password")
 
-        user = CustomUser.get_by_email(email)
+#         user = CustomUser.get_by_email(email)
 
-        if user and user.check_password(password):
-            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-            return redirect("home")
+#         if user and user.check_password(password):
+#             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+#             return redirect("home")
 
-        messages.error(request, "Invalid email or password")
-        return redirect("login")
+#         messages.error(request, "Invalid email or password")
+#         return redirect("login")
 
-    return render(request, "authentication/login.html")
+#     return render(request, "authentication/login.html")
 
 
 def logout_view(request):
