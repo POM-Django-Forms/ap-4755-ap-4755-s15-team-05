@@ -40,9 +40,13 @@ def login_view(request):
             
             if user and user.check_password(password):
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-                redirect("home")
+                return redirect("home")
+            
+            messages.error(request, "Invalid email or password")
+    else:
+        form = LoginForm()
     
-    return render(request, "authentication/login.html")
+    return render(request, "authentication/login.html", {"form": form})
         
 #=============   
         

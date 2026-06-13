@@ -11,6 +11,13 @@ class CustomUserForm(forms.ModelForm):
             'password': forms.PasswordInput()
         }
     
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        
+        if CustomUser.get_by_email(email):
+            raise forms.ValidationError("User with this email already exists")
+        
+        return email
     def save(self, commit=True):
         user = super().save(commit=False)
         
@@ -23,6 +30,5 @@ class CustomUserForm(forms.ModelForm):
         return user
     
 class LoginForm(forms.Form):
-    class Meta:
-        email = forms.EmailField()
-        password = forms.CharField(widget=forms.PasswordInput())
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput())
