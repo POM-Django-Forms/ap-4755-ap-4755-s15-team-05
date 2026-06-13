@@ -18,6 +18,8 @@
                 End: {{ order.end_at }} |
                 Planned end: {{ order.plated_end_at }}
 
+                <a href="{% url 'order_update' order.id %}">Edit</a>
+
                 {% if not order.end_at %}
                     <a href="{% url 'order_close' order.id %}">Close order</a>
                 {% endif %}

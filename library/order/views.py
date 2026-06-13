@@ -1,10 +1,9 @@
 import time
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
 
 from .models import Order
-from book.models import Book
+from .forms import OrderCreateForm, OrderUpdateForm
 
 
 def is_librarian(user):
@@ -34,32 +33,42 @@ def order_create(request):
     if not request.user.is_authenticated:
         return redirect("login")
 
-    books = Book.get_all()
+    if request.method == "POST":
+        form = OrderCreateForm(request.POST)
+
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.user = request.user
+            order.save()
+            return redirect("my_orders")
+    else:
+        form = OrderCreateForm()
+
+    return render(request, "order/order_form.html", {
+        "form": form,
+        "title": "Create order"
+    })
+
+
+def order_update(request, order_id):
+    if not is_librarian(request.user):
+        return redirect("home")
+
+    order = get_object_or_404(Order, id=order_id)
 
     if request.method == "POST":
-        book_id = request.POST.get("book_id")
-        plated_end_at = request.POST.get("plated_end_at")
+        form = OrderUpdateForm(request.POST, instance=order)
 
-        book = Book.get_by_id(book_id)
+        if form.is_valid():
+            form.save()
+            return redirect("order_list")
+    else:
+        form = OrderUpdateForm(instance=order)
 
-        if book is None:
-            messages.error(request, "Book not found")
-            return redirect("order_create")
-
-        if not plated_end_at:
-            plated_end_at = int(time.time()) + 14 * 24 * 60 * 60
-        else:
-            plated_end_at = int(plated_end_at)
-
-        Order.create(
-            user=request.user,
-            book=book,
-            plated_end_at=plated_end_at
-        )
-
-        return redirect("my_orders")
-
-    return render(request, "order/order_create.html", {"books": books})
+    return render(request, "order/order_form.html", {
+        "form": form,
+        "title": "Edit order"
+    })
 
 
 def order_close(request, order_id):
